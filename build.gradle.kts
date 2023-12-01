@@ -8,6 +8,8 @@ repositories {
     mavenCentral()
 }
 
+group = "ru.rudikov"
+version = "0.1.0"
 
 gradlePlugin {
     plugins {
@@ -16,4 +18,8 @@ gradlePlugin {
             implementationClass = "ru.rudikov.schemaregistrybuddy.SchemaRegistryBuddy"
         }
     }
+}
+
+dependencies {
+    implementation("org.apache.avro:avro:1.11.3")
 }
