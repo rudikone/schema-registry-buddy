@@ -1,14 +1,12 @@
 package ru.rudikov.schemaregistrybuddy
 
-class SchemaRegistryBuddyProperties(
+open class SchemaRegistryBuddyProperties(
     var schemaRegistryUrl: String = DEFAULT_SCHEMA_REGISTRY_URL,
-    var searchPaths: Set<String> = DEFAULT_DIRECTORIES,
-    var excludedPaths: Set<String> = emptySet(),
+    var searchPaths: MutableSet<String> = mutableSetOf(),
     var subjectToSchema: MutableMap<String, String> = mutableMapOf(),
-) {
-    companion object {
-        private const val DEFAULT_SCHEMA_REGISTRY_URL = "http://localhost:10081"
-        private val DEFAULT_DIRECTORIES = setOf("src/main/resources/avro/")
-    }
-}
+)
+
+const val DEFAULT_SCHEMA_REGISTRY_URL = "http://localhost:10081"
+const val CONTENT_TYPE_HEADER_VALUE = "application/vnd.schemaregistry.v1+json"
+const val CONTENT_TYPE_HEADER_NAME = "Content-Type"
 

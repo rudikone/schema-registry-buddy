@@ -22,4 +22,6 @@ gradlePlugin {
 
 dependencies {
     implementation("org.apache.avro:avro:1.11.3")
+    implementation("org.json:json:20231013")
+
 }
