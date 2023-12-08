@@ -12,24 +12,32 @@ import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.file.Files
 import java.nio.file.Paths
+import javax.inject.Inject
 import kotlin.io.path.isRegularFile
 
-open class RegisterAllSchemas : DefaultTask() {
+open class RegisterSchemas @Inject constructor(
+    private val properties: SchemaRegistryBuddyProperties,
+) : DefaultTask() {
 
-    private val properties = project.extensions.findByType(SchemaRegistryBuddyProperties::class.java)!!
-    private val httpClient = HttpClient.newHttpClient()
+    private val httpClient: HttpClient = HttpClient.newHttpClient()
 
-    init {
+    @TaskAction
+    fun register() {
+        validateProperties()
+        process()
+    }
+
+    private fun validateProperties() {
         if (properties.subjectToSchema.isEmpty()) {
             error("No schema has been announced!")
         }
+
         if (properties.searchPaths.isEmpty()) {
             properties.searchPaths.add("${project.buildDir}")
         }
     }
 
-    @TaskAction
-    fun register() {
+    private fun process() {
         properties.subjectToSchema.forEach { (subject, schemaName) ->
             properties.searchPaths.forEach { path ->
                 runCatching {
@@ -38,7 +46,9 @@ open class RegisterAllSchemas : DefaultTask() {
 
                     val jsonValueOfSchema = JSONObject().put("schema", schema)
 
-                    addSchemaToRegistry(subject = subject, jsonObject = jsonValueOfSchema)
+                    sendSchemaToRegistry(subject = subject, jsonObject = jsonValueOfSchema)
+                }.onSuccess {
+                    logger.lifecycle(it.body())
                 }.onFailure {
                     logger.warn("Failed register $schemaName for $subject!", it)
                 }
@@ -52,14 +62,13 @@ open class RegisterAllSchemas : DefaultTask() {
         .orElseThrow()
         .toFile()
 
-    private fun addSchemaToRegistry(subject: String, jsonObject: JSONObject) {
+    private fun sendSchemaToRegistry(subject: String, jsonObject: JSONObject): HttpResponse<String> {
         val request: HttpRequest = HttpRequest.newBuilder()
             .uri(URI("${properties.schemaRegistryUrl}/subjects/$subject-value/versions"))
-            .headers(CONTENT_TYPE_HEADER_NAME, CONTENT_TYPE_HEADER_VALUE)
+            .header(CONTENT_TYPE_HEADER_NAME, CONTENT_TYPE_HEADER_VALUE)
             .POST(HttpRequest.BodyPublishers.ofString(jsonObject.toString()))
             .build()
 
-        val response: HttpResponse<String> = httpClient.send(request, BodyHandlers.ofString())
-        logger.lifecycle(response.body())
+        return httpClient.send(request, BodyHandlers.ofString())
     }
 }

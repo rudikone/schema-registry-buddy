@@ -1,7 +1,8 @@
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.7.21"
     id("maven-publish")
     id("java-gradle-plugin")
+    id("io.gitlab.arturbosch.detekt") version "1.22.0"
 }
 
 repositories {
@@ -23,5 +24,4 @@ gradlePlugin {
 dependencies {
     implementation("org.apache.avro:avro:1.11.3")
     implementation("org.json:json:20231013")
-
 }
