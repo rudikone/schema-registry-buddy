@@ -4,7 +4,29 @@ GRADLE-плагин для регистрации схем под сабджек
 
 Использует [API Schema registry](https://docs.confluent.io/platform/current/schema-registry/develop/api.html).
 
+## Use case
+
+Используешь в своем севрисе Kafka + Avro? Поднимаешь инфрструктуру (Kafka + Schema Registry) для тестирования на локальной машине? Тебе нужно протестировать consumer? - этот плагин избавит от 
+ручной работы по регистрации необходимой consumer'у Avro схемы.
+ 
 ## Использование
+
+Склонируй проект, выполни:
+
+```
+gradle publishToMavenLocal
+```
+
+В целевом проекте:
+
+settings.gradle.kts:
+```
+pluginManagement {
+    repositories {
+        mavenLocal()
+    }
+}
+```
 
 build.gradle.kts:
 ```
@@ -19,8 +41,9 @@ schemaRegistryBuddyProps {
 }
 ```
 
+Выполни:
 ```
-run gradle registerSchemas
+gradle registerSchemas
 ```
 
 Плагин найдет в search_path файл с именем some_file_name.avcs (в subjectToSchema имя файла указывается без расширения), затем выполнит [POST-запрос](https://docs.confluent.io/platform/current/schema-registry/develop/api.html#post--subjects-(string-%20subject)-versions) для регистрации схемы. В случае успеха в консоль будут выведены id успешно зарегистрированных схем:
